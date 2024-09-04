@@ -26,8 +26,6 @@ RUN strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so
 # 2. https://www.youtube.com/watch?v=c6Bxbq8UdaI
 # Note: Pre compile here because it takes a long time (~18 minutes) to compile
 
-RUN cd /humble_ws/src && \
-    git clone https://github.com/OneOneLiu/test_joint_state_fetch.git
 RUN rosdep update && \
     apt update && \
     apt -y dist-upgrade && \
@@ -40,6 +38,9 @@ RUN rosdep update && \
     apt update && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y && \
     /bin/bash -c ". /opt/ros/humble/setup.bash; cd /humble_ws; colcon build --mixin release --executor sequential"
 
+RUN cd /humble_ws/src && \
+    git clone https://github.com/OneOneLiu/test_joint_state_fetch.git
+
 # Install UR5 robot
 RUN cd /humble_ws/src && \
     apt install -y ros-${ROS_DISTRO}-ros2-control && \
@@ -51,8 +52,8 @@ RUN cd /humble_ws/src && \
 RUN cd /humble_ws/ && \
     rosdep update && \
     /bin/bash -c ". /opt/ros/humble/setup.bash;. /humble_ws/install/setup.bash" && \
-    apt update && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y
-    # /bin/bash -c ". /opt/ros/humble/setup.bash; colcon build --packages-ignore moveit*"
+    apt update && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y && \
+    /bin/bash -c ". /opt/ros/humble/setup.bash; colcon build --packages-ignore moveit*"
 
 # Automatically source
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
