@@ -25,34 +25,37 @@ RUN strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so
 # 1. https://moveit.picknik.ai/main/doc/tutorials/getting_started/getting_started.html
 # 2. https://www.youtube.com/watch?v=c6Bxbq8UdaI
 # Note: Pre compile here because it takes a long time (~18 minutes) to compile
+
+RUN cd /humble_ws/src && \
+    git clone https://github.com/OneOneLiu/test_joint_state_fetch.git
 RUN rosdep update && \
     apt update && \
     apt -y dist-upgrade && \
     apt install python3-vcstool && \
-    mkdir -p /catkin_ws/src && \
-    cd /catkin_ws/src && \
+    mkdir -p /humble_ws/src && \
+    cd /humble_ws/src && \
     git clone --branch humble https://github.com/moveit/moveit2_tutorials && \
     vcs import < moveit2_tutorials/moveit2_tutorials.repos && \
     rosdep update && \
     apt update && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y && \
-    /bin/bash -c ". /opt/ros/humble/setup.bash; cd /catkin_ws; colcon build --mixin release --executor sequential"
+    /bin/bash -c ". /opt/ros/humble/setup.bash; cd /humble_ws; colcon build --mixin release --executor sequential"
 
 # Install UR5 robot
-RUN cd /catkin_ws/src && \
+RUN cd /humble_ws/src && \
     apt install -y ros-${ROS_DISTRO}-ros2-control && \
     apt install -y ros-${ROS_DISTRO}-ament-cmake && \
     apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs && \
     apt-get install -y ros-${ROS_DISTRO}-ur && \
     apt-get install -y ros-${ROS_DISTRO}-ur-bringup
 
-RUN cd /catkin_ws/ && \
+RUN cd /humble_ws/ && \
     rosdep update && \
-    /bin/bash -c ". /opt/ros/humble/setup.bash;. /catkin_ws/install/setup.bash" && \
+    /bin/bash -c ". /opt/ros/humble/setup.bash;. /humble_ws/install/setup.bash" && \
     apt update && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y
     # /bin/bash -c ". /opt/ros/humble/setup.bash; colcon build --packages-ignore moveit*"
 
 # Automatically source
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
-    echo "source /catkin_ws/install/setup.bash" >> ~/.bashrc
+    echo "source /humble_ws/install/setup.bash" >> ~/.bashrc
 
 RUN echo "ALL Done"
